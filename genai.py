@@ -5,7 +5,7 @@ import pandas as pd
 import base64
 import requests
 import time
-import cv2
+# import cv2  # Commented out for Streamlit Cloud deployment
 import PyPDF2
 from docx import Document
 import re
@@ -272,105 +272,18 @@ class GenAI:
     def extract_frames(self, fname_video, max_samples = 15):
         """
         Extracts frames from a video file at regular intervals.
-
-        Parameters:
-        ----------
-        video_path : str
-            Path to the video file.
-
-        Returns:
-        -------
-        tuple
-            A tuple containing:
-            - A list of base64-encoded image frames
-            - Total number of frames in the video
-            - Frames per second (FPS) of the video
+        NOTE: This function is disabled for Streamlit Cloud deployment.
         """
-        if not os.path.exists(fname_video):
-            
-            return [], 0, 0
-
-        video = cv2.VideoCapture(fname_video)  # open the video file
-        if not video.isOpened():
-            #logger.error(f"Failed to open video file: {fname_video}")
-            return [], 0, 0
-
-        nframes = video.get(cv2.CAP_PROP_FRAME_COUNT)  # number of frames in video
-        fps = video.get(cv2.CAP_PROP_FPS)  # frames per second in video
-
-        #logger.debug(f"{nframes} frames in video")
-        #logger.debug(f"{fps} frames per second")
-
-        base64Frames = []
-        
-        frame_interval = max(1, int(nframes // max_samples))  # Calculate the interval at which to sample frames
-
-        current_frame = 0
-        while video.isOpened():
-            success, frame = video.read()
-            if not success:
-                break
-            if current_frame % frame_interval == 0 and len(base64Frames) < max_samples:
-                _, buffer = cv2.imencode(".jpg", frame)
-                base64Frames.append(base64.b64encode(buffer).decode("utf-8"))
-            current_frame += 1
-
-        video.release()
-
-        return base64Frames, nframes, fps
+        # Disabled for Streamlit Cloud deployment - cv2 not available
+        return [], 0, 0
 
     def generate_video_description(self, fname_video, instructions, max_samples=15, model='gpt-4o-mini'):
         """
         Generates a textual description of a video by analyzing sampled frames.
-
-        Parameters
-        ----------
-        fname_video : str
-            Path to the video file.
-        instructions : str
-            Guidelines for generating the description.
-        max_samples : int, optional
-            Maximum number of frames to sample from the video (default is 15).
-        model : str, optional
-            OpenAI model used for generating the description (default is 'gpt-4o-mini').
-
-        Returns
-        -------
-        str
-            A descriptive summary of the video content.
+        NOTE: This function is disabled for Streamlit Cloud deployment.
         """
-        # Extract sampled frames and video metadata
-        base64Frames_samples, nframes, fps = self.extract_frames(fname_video, max_samples)
-
-        # Estimate the maximum number of words based on speech rate
-        words_per_second = 200 / 60  # Typical speech rate
-        max_words = round(nframes / fps * words_per_second)
-
-        # Convert frames to base64 image URLs
-        image_urls = [f"data:image/jpeg;base64,{base64_image}" for base64_image in base64Frames_samples]
-
-        # Prepare API prompt messages
-        prompt_messages = [
-            {
-                "role": "user",
-                "content": [{"type": "text", "text": instructions}] +
-                        [{"type": "image_url", "image_url": {"url": url}} for url in image_urls],
-            },
-        ]
-
-        # API request parameters
-        params = {
-            "model": model,
-            "messages": prompt_messages,
-            "max_tokens": 1000,
-        }
-
-        # Generate completion using OpenAI's API
-        completion = self.client.chat.completions.create(**params)
-        response = completion.choices[0].message.content
-
-        # Clean up response formatting
-        return response.replace("```html", "").replace("```", "")
+        # Disabled for Streamlit Cloud deployment - cv2 not available
+        return "Video analysis is not available in this deployment."
 
     def generate_audio(self, text, file_path, model='tts-1', voice='nova', speed=1.0):
         """
